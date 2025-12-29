@@ -122,6 +122,240 @@ This project includes four working examples:
 3. **Context Example** - Illustrates debugging context state changes
 4. **Custom Hook Example** - Demonstrates debugging state within custom hooks
 
+## Testing Instructions
+
+### Prerequisites
+
+- Node.js (v18 or higher recommended)
+- npm, pnpm, or yarn package manager
+- A modern web browser with DevTools support (Chrome, Firefox, Edge, Safari)
+
+### Initial Setup
+
+1. **Navigate to the project directory:**
+   ```bash
+   cd react-state-debugger
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   pnpm install
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser:**
+   - The terminal will display a local URL (typically `http://localhost:5173`)
+   - Open this URL in your browser
+   - **Important:** Open your browser's Developer Tools (F12 or Cmd+Option+I) and navigate to the Console tab
+
+### Testing Each Example
+
+#### 1. useState Example
+
+**What to Test:**
+- Debug logs for local component state updates
+- Multiple state variables in the same component
+
+**Steps:**
+1. Locate the "useState Example" section on the page
+2. Click the "Increment" button
+3. **Check Console:** You should see a collapsed log group labeled `🔄 [Counter] State Update`
+   - Expand it to see:
+     - The new value (incremented count)
+     - A stack trace showing where the update was triggered
+4. Click "Decrement" to see another debug log
+5. Click "Toggle Name" to see debug logs for a different state variable (`Name`)
+
+**Expected Console Output:**
+```
+🔄 [Counter] State Update
+  🆕 New value: 1
+  📍 Update triggered from: [stack trace]
+```
+
+**What to Verify:**
+- ✅ Debug logs appear for both `Counter` and `Name` state updates
+- ✅ Stack traces show the exact function that triggered the update
+- ✅ Values match what's displayed in the UI
+
+#### 2. useReducer Example
+
+**What to Test:**
+- Debug logs for reducer actions/dispatches
+- Different action types being logged
+
+**Steps:**
+1. Locate the "useReducer Example" section
+2. Click "Increment (+1)" button
+3. **Check Console:** Look for `🔄 [CounterReducer] State Update` log
+   - The new value will be the action object: `{ type: "increment" }`
+4. Click "Decrement (-1)" to see another action logged
+5. Click "Reset" to see the reset action
+6. Click "Toggle Step" to change the step value and see the `setStep` action
+
+**Expected Console Output:**
+```
+🔄 [CounterReducer] State Update
+  🆕 New value: { type: "increment" }
+  📍 Update triggered from: [stack trace]
+```
+
+**What to Verify:**
+- ✅ All action types are logged correctly
+- ✅ Stack traces point to the button click handlers
+- ✅ The reducer still functions correctly (count changes as expected)
+
+#### 3. Context Example
+
+**What to Test:**
+- Debug logs for context state changes
+- State updates from child components
+
+**Steps:**
+1. Locate the "Context Provider Example" section
+2. Click "Login as John Doe"
+3. **Check Console:** Look for `🔄 [UserContext] State Update` log
+   - The new value should be the user object: `{ name: "John Doe", email: "john@example.com", role: "user" }`
+   - Expand the stack trace to see it originated from the `login` function
+4. Click "Logout"
+5. **Check Console:** Another log should appear with `null` as the new value
+
+**Expected Console Output:**
+```
+🔄 [UserContext] State Update
+  🆕 New value: { name: "John Doe", email: "john@example.com", role: "user" }
+  📍 Update triggered from: [stack trace showing login function]
+```
+
+**What to Verify:**
+- ✅ Context state changes are logged with the correct label
+- ✅ Stack traces show the context provider as the source
+- ✅ User information displays correctly in the UI
+
+#### 4. Custom Hook Example
+
+**What to Test:**
+- Debug logs for state managed within custom hooks
+- Multiple state variables within a single hook
+
+**Steps:**
+1. Locate the "Custom Hook Example" section
+2. Click "Start" button
+3. **Check Console:** You should see logs for `Timer.isRunning` state update
+   - The new value should be `true`
+4. Watch the timer count up - you'll see periodic logs for `Timer.seconds` updates
+5. Click "Stop" to see `Timer.isRunning` change to `false`
+6. Click "Reset" to see both `Timer.seconds` and `Timer.isRunning` update
+
+**Expected Console Output:**
+```
+🔄 [Timer.isRunning] State Update
+  🆕 New value: true
+  📍 Update triggered from: [stack trace]
+
+🔄 [Timer.seconds] State Update
+  🆕 New value: 1
+  📍 Update triggered from: [stack trace]
+```
+
+**What to Verify:**
+- ✅ Both state variables (`seconds` and `isRunning`) are logged separately
+- ✅ Timer functionality works correctly
+- ✅ Stack traces show the interval callback and button handlers
+
+### Testing Production Build
+
+**Purpose:** Verify that debug utilities are automatically disabled in production builds.
+
+**Steps:**
+1. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+2. **Preview the production build:**
+   ```bash
+   npm run preview
+   ```
+
+3. **Test in browser:**
+   - Open the preview URL in your browser
+   - Open Developer Tools Console
+   - Interact with all examples (click buttons, trigger state changes)
+
+4. **Verify:**
+   - ✅ **No debug logs should appear** in the console
+   - ✅ All functionality still works correctly (buttons work, state updates)
+   - ✅ The application behaves identically, just without debug logging
+
+**What This Confirms:**
+- Debug utilities are properly disabled in production
+- No performance overhead from debug code in production builds
+- Application functionality is unaffected
+
+### Advanced Testing
+
+#### Testing Stack Traces
+
+1. **Inspect stack traces:**
+   - Click on the stack trace link in any console log
+   - Verify it points to the correct function/file
+   - Check that it shows the call chain leading to the state update
+
+2. **Test with multiple updates:**
+   - Rapidly click buttons to trigger multiple state updates
+   - Verify each update is logged separately
+   - Check that stack traces remain accurate
+
+#### Testing Edge Cases
+
+1. **Function updaters:**
+   - Modify examples to use function updaters: `setCount(prev => prev + 1)`
+   - Verify debug logs still work correctly
+
+2. **Complex state objects:**
+   - Test with nested objects and arrays
+   - Verify the console displays them correctly
+
+3. **Multiple components:**
+   - Create multiple instances of components using the same debug setter
+   - Verify logs are distinguishable (labels help here)
+
+### Troubleshooting
+
+**Issue: No debug logs appearing**
+- ✅ Ensure you're running in development mode (`npm run dev`)
+- ✅ Check that `NODE_ENV` is not set to `production`
+- ✅ Verify browser console is open and not filtered
+- ✅ Check that console logs aren't being filtered out
+
+**Issue: Stack traces not showing**
+- ✅ Some browsers may require clicking the stack trace to expand it
+- ✅ Ensure your browser DevTools supports `console.trace()`
+
+**Issue: Production build still shows logs**
+- ✅ Verify `import.meta.env.PROD` is correctly set during build
+- ✅ Check that you're actually running the production build (`npm run preview`)
+- ✅ Clear browser cache and hard refresh
+
+### Verification Checklist
+
+Before considering testing complete, verify:
+
+- [ ] All four examples display debug logs in development
+- [ ] Stack traces are accurate and helpful
+- [ ] Production build shows no debug logs
+- [ ] All functionality works in both development and production
+- [ ] Console logs are properly formatted and readable
+- [ ] Multiple rapid updates are handled correctly
+- [ ] Different state types (primitives, objects, arrays) log correctly
+
 ## Best Practices
 
 - ✔ Use clear labels: Name your debug setter after the component or context
